@@ -1,0 +1,78 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                  Int               @id @default(autoincrement())
+  username            String            @unique
+  password            String
+  role                String            @default("student")
+  firstName           String
+  lastName            String
+  matricula           String?
+  cedula              String?
+  carrera             String?
+  carreraCodigo       String?
+  periodoActivo       String            @default("1-2026")
+  telefono            String?
+  celular             String?
+  correoPersonal      String?
+  correoInstitucional String?
+  cargo               String?
+  requests            DocumentRequest[] @relation("StudentRequests")
+  processedRequests   DocumentRequest[] @relation("ProcessedBy")
+  auditLogs           AuditLog[]
+}
+
+model DocumentType {
+  id           Int               @id @default(autoincrement())
+  name         String
+  slug         String            @unique
+  icon         String
+  price        Float
+  deliveryDays Int               @default(3)
+  autoPdf      Boolean           @default(false)
+  isActive     Boolean           @default(true)
+  order        Int               @default(0)
+  requests     DocumentRequest[]
+}
+
+model DocumentRequest {
+  id             Int          @id @default(autoincrement())
+  code           String       @unique
+  student        User         @relation("StudentRequests", fields: [studentId], references: [id])
+  studentId      Int
+  docType        DocumentType @relation(fields: [docTypeId], references: [id])
+  docTypeId      Int
+  copies         Int          @default(1)
+  purpose        String
+  language       String       @default("es")
+  institution    String?
+  observations   String?
+  paymentReceipt String?
+  status         String       @default("pending")
+  adminNotes     String?
+  processedBy    User?        @relation("ProcessedBy", fields: [processedById], references: [id])
+  processedById  Int?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  auditLogs      AuditLog[]
+}
+
+model AuditLog {
+  id        Int             @id @default(autoincrement())
+  request   DocumentRequest @relation(fields: [requestId], references: [id])
+  requestId Int
+  action    String
+  icon      String
+  actor     String
+  note      String
+  user      User?           @relation(fields: [userId], references: [id])
+  userId    Int?
+  createdAt DateTime        @default(now())
+}
