@@ -7,7 +7,7 @@
     "build": "prisma generate && next build",
     "start": "next start",
     "postinstall": "prisma generate",
-    "db:seed": "npx ts-node --compiler-options '{\"module\":\"CommonJS\"}' prisma/seed.ts",
+    "db:seed": "npx ts-node --project tsconfig.seed.json prisma/seed.ts",
     "db:push": "npx prisma db push",
     "db:studio": "npx prisma studio"
   },
